@@ -1,0 +1,21 @@
+[project]
+name = "femipo"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Svein Olav Mork", email = "sveinomork@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "scipy>=1.15.2",
+    "shapely>=2.0.7",
+    "vectormath>=0.2.2",
+]
+
+[project.scripts]
+femipo = "femipo:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

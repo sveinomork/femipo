@@ -150,6 +150,18 @@ class NODE_FUNC(FEM_BASE,FUNC_TEMPLATE):
       
 
    
+   def duplicate_nodes(self,gcoord:GCOORD)->bool:
+      """check if the node is duplicated"""
+      for key,value in self.gcoord.items():
+         if gcoord.xcoord==value.xcoord and gcoord.ycoord==value.ycoord and gcoord.zcoord==value.zcoord:
+            return True
+      return False 
+   def get_org_node_num_if_duplicate(self,gcoord:GCOORD)->int:
+      """get the original node number if the node is duplicated"""
+      for key,value in self.gcoord.items():
+         if (gcoord.xcoord==value.xcoord and gcoord.ycoord==value.ycoord and gcoord.zcoord==value.zcoord):
+            return key
+      return -1
    
 
 

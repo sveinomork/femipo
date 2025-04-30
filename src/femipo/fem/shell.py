@@ -1,6 +1,9 @@
 from dataclasses import dataclass
+from operator import le
+from shapely import Point
+from vectormath import Vector3
 from .fem import FEM
-from .element_parameters import side_d,SOLID_20,solid20_shell,SHELL_8,SOLID_15,solid15_shell,SHELL_6
+from .element_parameters import side_d,SOLID_20,solid20_shell,SHELL_8,SOLID_15,solid15_shell,SHELL_6,shell_solid_mpap_8_20,sh|
 from .cards.gnode import GNODE
 from .cards.gcoord import GCOORD
 from .cards.gelmnt1 import GELMNT1
@@ -10,6 +13,9 @@ from .cards.gelth import GELTH
 from .cards.gsetmemb import GSETMEMB
 from .cards.tdsetnam import TDSETNAM
 from .cards.ident import IDENT
+from ..func.func_geo import  calc_new_point
+from ..func.func_template import FUNC_TEMPLATE
+
 
 
 from logging import raiseExceptions
@@ -22,6 +28,8 @@ logger = logging.getLogger(__name__)
 class SHELL():
     fem_3d:FEM
     fem_2d:FEM
+
+    
 
     def create_shell_from_solid(self,lc,boundary=None,base_setnumbers=None,setnum=1,selnum=None):
         self._creat_IDENT(selnum)
@@ -56,9 +64,63 @@ class SHELL():
         self.fem_2d.write("T100.FEM")        
         print("satopp")
     
+    def _create_solid_nodes(self,nodes:list[GCOORD],po:Point,alfa:float)->list[GCOORD]:
+        return_nodes:list[GCOORD]=[]
+        if len(nodes)==8:
+            for n,node in enumerate(nodes):
+                en=shell_solid_mpap_8_20[n]
+
+                for idx in en:
+                    nodes[idx]=GCOORD(node.xcoord,node.ycoord,node.zcoord)
+                    if len(en)==3:
+                        
+                        p1=calc_new_point(po,Point(node.xcoord,node.ycoord,node.zcoord),alfa/2)
+                        nodes[idx]=GCOORD(p1.x,p1.y,p1.z)
+                        p2=calc_new_point(po,Point(node.xcoord,node.ycoord,node.zcoord),alfa)
+                        nodes[idx]=GCOORD(p2.x,p2.y,p2.z)
+                    elif len(en)==2:
+                        p1=calc_new_point(po,Point(node.xcoord,node.ycoord,node.zcoord),alfa)
+                        nodes[idx]=GCOORD(p1.x,p1.y,p1.z)
+        
+        return return_nodes
+    
+        
 
 
 
+
+
+
+               
+        
+
+
+    def _create_nodes(self,element:GELMNT1,vector:Vector3)->None:
+        nodes = {}
+        n=1
+        if element.eltype==SHELL_8:
+            for sh_node,solid_node in shell_solid_mpap_8_20.items():
+
+                
+                nodes[solid_node[0]]=GCOORD(self.fem_2d.gcoord[sh_node].xcoord,
+                                            self.fem_2d.gcoord[sh_node].ycoord,
+                                            self.fem_2d.gcoord[sh_node].zcoord)
+                if len(solid_node)==3:
+                    nodes[solid_node[1]]=GCOORD(self.fem_2d.gcoord[sh_node].xcoord+0.5*vector.x,
+                                            self.fem_2d.gcoord[sh_node].ycoord+0.5*vector.y,
+                                            self.fem_2d.gcoord[sh_node].zcoord+0.5*vector.z)
+                    
+                    nodes[solid_node[1]]=GCOORD(self.fem_2d.gcoord[sh_node].xcoord+1*vector.x,
+                                            self.fem_2d.gcoord[sh_node].ycoord+1*vector.y,
+                                            self.fem_2d.gcoord[sh_node].zcoord+1*vector.z)
+                
+                
+                else:
+                    nodes[solid_node[1]]=GCOORD(self.fem_2d.gcoord[sh_node].xcoord+vector.x,
+                                            self.fem_2d.gcoord[sh_node].ycoord+vector.y,
+                                            self.fem_2d.gcoord[sh_node].zcoord+vector.z)
+                    
+        
     def _create_GNODE(self,nodes:list[int])->None:
        
         for n,_ in enumerate(nodes):
@@ -229,11 +291,9 @@ class SHELL():
         if num==None:
             self.fem_2d.ident= self.fem_3d.ident   
         else:
-            self.fem_2d.ident=IDENT(self.fem_3d.ident.slevel,self.fem_3d.ident.seltype)
+            self.fem_2d.ident[1]=IDENT(self.fem_3d.ident[1].slevel,self.fem_3d.ident[1].selmod)
         
-    def _creat_IEND(self)->None:
-        self.fem_2d.iend= self.fem_3d.iend  
-
+    
     def _create_GELTH(self,thick):
         self.fem_2d.gelth[1]=GELTH(thick,0)
         

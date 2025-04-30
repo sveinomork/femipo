@@ -1,3 +1,4 @@
+from femipo.fem.cards.gcoord import GCOORD
 from  ..fem.fem_base import FEM_BASE
 from .func_template import FUNC_TEMPLATE
 from shapely.geometry import Point
@@ -8,7 +9,7 @@ from .load_surf import LoadSurf
 
 
 class ELEMENT_FUNC(FEM_BASE,FUNC_TEMPLATE):
-    def get_elements_cog(self,elements:list[int]=None)->dict[int,Point]:
+    def get_elements_cog(self,elements:list[int])->dict[int,Point]:
         results={}
 
         def calculate_cog(nodes):
@@ -99,7 +100,7 @@ class ELEMENT_FUNC(FEM_BASE,FUNC_TEMPLATE):
         # Check if eltype exists in the map and find matching side
         if eltype in side_dict_map:
             for side, indices in side_dict_map[eltype].items():                      
-                if all(item in surf_indices  for item in indices)==True:             
+                if all(item in surf_indices  for item in indices):             
                     sides.append(side)
 
         return sides
@@ -125,6 +126,7 @@ class ELEMENT_FUNC(FEM_BASE,FUNC_TEMPLATE):
         return return_list  
          
 
-            
+    def get_elment_gcoord(self,element:int)->list[GCOORD]:
+        return [self.gcoord[node] for node in self.gelmnt1[element].nodin]
 
    

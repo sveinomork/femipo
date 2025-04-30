@@ -28,7 +28,7 @@ Returns:
     
     """
     # point converted to  np array like
-    p=np.array[point.x,point.y,point.z]
+    p=np.array([point.x,point.y,point.z])
     # euler rotation matrix 
     r=R.from_euler(seq,angels,degrees).as_matrix()
     # rotated point as np array like
@@ -77,7 +77,21 @@ def get_planeq3P(pp1:Point,pp2:Point,pp3:Point)->np.ndarray:
     d = np.dot(cp, p3)
     return np.array([a, b, c, d]) 
 
-
+def calc_new_point(center: Point, p2: Point, alfa: float) -> Point:
+        # Calculate the angle of p2 relative to center
+        current_angle = np.atan2(p2.y - center.y, p2.x - center.x)
+        
+        # Calculate radius from the given point
+        r = np.sqrt((p2.x - center.x)**2 + (p2.y - center.y)**2)
+        
+        # Calculate new angle by adding alfa (converted to radians)
+        new_angle = current_angle + np.radians(alfa)
+        
+        # Calculate new coordinates
+        x3 = center.x + r * np.cos(new_angle)
+        y3 = center.y + r * np.sin(new_angle)
+        
+        return Point(x3, y3, p2.z)
 
 
 

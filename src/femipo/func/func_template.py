@@ -3,10 +3,12 @@ from vectormath import Vector3
 from shapely.geometry import Point
 import numpy as np
 from ..fem.cards.beuslo import BEUSLO
+from ..fem.cards.gcoord import GCOORD
 from .load_surf import LoadSurf
 from typing import Callable, Tuple, Union
 from typing import Protocol
 class FUNC_TEMPLATE(Protocol):
+    
     def translate_nodes(self,trans_vector:Vector3)->None:
         ...
     def get_nodes_given_exnodes(self,nodes_exe:list[int])->list[int]:
@@ -40,6 +42,8 @@ class FUNC_TEMPLATE(Protocol):
         ...
     def get_element_sides(self,nodes:list[int],element)->list[int]:
         ...
+    def get_elment_gcoord(self,element:int)->list[GCOORD]:
+        ...
     def get_nodes_in_element_side(self,elnum:int,side:int)->list[int]:
         ...
 
@@ -59,13 +63,22 @@ class FUNC_TEMPLATE(Protocol):
     #    ...
 
        
-    
-
-    def create_beusulo(self,lc:int,loadtype:int,load_surf:list[LoadSurf],load_func:LoadFuncType,lf:float=1.0,**load_func_args:float)->None:
+    def create_beuslo(self,lc:int,loadtype:int,load_surf:list[LoadSurf],load_func:LoadFuncType,lf:float=1.0,**load_func_args:float)->None:
         ...
 
-    def add_beuslo_to_plane(self,pp1:Point,pp2:Point,pp3:Point,lc:int,beusol_obj:BEUSLO,load_func:LoadFuncType|None=None,lf:float=1.0,**load_args:dict[str,float])->None:
-        ...
+
+   
 
     def get_surf_element_side(self,pp1:Point,pp2:Point,pp3:Point)->list[LoadSurf]:
         ...
+    
+    def duplicate_nodes(self,gcoord:GCOORD)->bool:
+        ...
+    def get_org_node_num_if_duplicate(self,gcoord:GCOORD)->int:
+        ...
+
+
+
+
+
+    

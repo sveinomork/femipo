@@ -8,7 +8,7 @@ class GELMNT1:
     # key elno internal element number
     elnox:int #external element number
     eltype:int #element type number
-    eltyad:int #additonal information related to element typ
+    eltyad:int #additonal information related to element type
     nodin:List[int]=field(default=list)
 
     

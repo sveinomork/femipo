@@ -8,3 +8,7 @@ wheels/
 *.fem
 # Virtual environments
 .venv
+*.mod
+*.idx
+*.mnt
+

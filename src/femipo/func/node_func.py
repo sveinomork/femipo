@@ -40,6 +40,13 @@ class NODE_FUNC(FEM_BASE,FUNC_TEMPLATE):
    def get_node_coordinates(self,node:int)->tuple[float,float,float]:
       return (self.gcoord[node].xcoord,self.gcoord[node].ycoord,self.gcoord[node].zcoord)
       
+   def get_node_given_coordinates(self,point:Point)->int:
+      p=GCOORD(point.x,point.y,point.z)
+      for node,coor in self.gcoord.items():
+         if coor.xcoord==p.xcoord and coor.ycoord==p.ycoord and coor.zcoord==p.zcoord:
+            return node
+      return -1
+   
 
    def translate_nodes(self,trans_vector:Vector3)->None:
       for key,val in self.gcoord.items():

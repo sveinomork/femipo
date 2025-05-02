@@ -55,18 +55,20 @@ def main2():
 
 def main3():
     fem_obj_2d=FEM()
-    fem_obj_2d.read_fem(r'C:\Users\nx74\Work\femipo\src\T1.FEM')
+    fem_obj_2d.read_fem(r'C:\Users\nx74\Work\femipo\src\T11.FEM')
     fem_obj_3d=FEM()
     _alafas=[0.0,10.0,20.0,30.0,40.0,50.0,60.0,70.0,80.0,90.0,100.0,110.0,120.0,130.0,140.0,150.0,160.0,170.0,180.0,190.0,200.0,210.0,220.0,230.0,240.0,250.0,260.0,270.0,280.0,290.0,300.0,310.0,320.0,330.0,340.0,350.0]
-    _alafas2=[0.0,20.0,40.0,60.0,80.0,100.0,120.0,140.0,160.0,180.0,200.0,220.0,240.0,260.0,280.0,300.0,320.0,340.0]
+    #_alafas2=[0.0,20.0,40.0,60.0,80.0,100.0,120.0,140.0,160.0,180.0,200.0,220.0,240.0,260.0,280.0,300.0,320.0,340.0]
+    _alafas=[0.0,10.0]
     alfas=[Alfa(start=alfa,stopp=alfa+10) for alfa in _alafas]
-    alfas2=[Alfa(start=alfa,stopp=alfa+10) for alfa in _alafas2]
+    #alfas2=[Alfa(start=alfa,stopp=alfa+10) for alfa in _alafas2]
     rev=Revolve(fem_obj_2d,fem_obj_3d,Point(0,0,0))
     
-    base_elements=[1,2,3]
+    base_elements=[5]
     rev.create_solid_from_shell(base_elements,alfas,1)
-    rev.create_solid_from_shell([4],alfas2,1)
-    fem_obj_3d.write(r'C:\Users\nx74\Work\femipo\src\T3.FEM')
+    rev._create_set(alfas,[2],1,"surfaces")
+    #rev.create_solid_from_shell([4],alfas2,1)
+    fem_obj_3d.write(r'C:\Users\nx74\Work\femipo\src\T31.FEM')
     print("stopp")
 
 

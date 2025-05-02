@@ -5,7 +5,7 @@ from shapely import Point
 from femipo import fem
 
 from .fem import FEM
-from .element_parameters import SOLID_20,SHELL_8,shell_solid_mpap_8_20
+from .element_parameters import BEAM_3, SOLID_20,SHELL_8,shell_solid_mpap_8_20,shell_solid_map_6_15,beam_shell_map_3_8
 from .cards.gnode import GNODE
 from .cards.gcoord import GCOORD
 from .cards.gelmnt1 import GELMNT1
@@ -51,7 +51,7 @@ class Revolve():
                 if typ==SHELL_8:
                     gcoords_base=self.base_fem_2d.get_elment_gcoord(element)
 
-                    solid_nodes=self._create_solid_nodes(gcoords_base,alfa.start,alfa.stopp)
+                    solid_nodes=self._create_solid_nodes(gcoords_base,alfa,mapping_dict=shell_solid_mpap_8_20)
                     for s,v in solid_nodes.items():
                         print(f'{s=} {v.xcoord} {v.ycoord} {v.zcoord}')
                     nodin:list[int]=[]
@@ -79,40 +79,125 @@ class Revolve():
         # define the shell tickness
    
         
+    def _create_fem_3d(self,alfas:list[Alfa],base_elements:list[int])->None:
+        node_num:int=len(self.fem_3d.gcoord)+1
+      
+        element_num:int=len(self.fem_3d.gelmnt1)+1
+     
+        for alfa in alfas:
+                     
+            for element in base_elements:
+                solid_nodes:dict[int,GCOORD]={}
+                # get the element type
+                typ=self.base_fem_2d.gelmnt1[element].eltype
+                if typ==SHELL_8:
+                    gcoords_base=self.base_fem_2d.get_elment_gcoord(element)
 
-    def _create_sets(self,nodes:list[GCOORD],start_alfa:float,stopp_alfa:float)->dict[int,GCOORD]:
-        return_nodes:dict[int,GCOORD]={}
-        half_alfa=start_alfa+(stopp_alfa-start_alfa)/2
-        if len(nodes)==8:
-            pass
+                    solid_nodes=self._create_solid_nodes(gcoords_base,alfa,mapping_dict=shell_solid_mpap_8_20)
+                    for s,v in solid_nodes.items():
+                        print(f'{s=} {v.xcoord} {v.ycoord} {v.zcoord}')
+                    nodin:list[int]=[]
+                    for node in solid_nodes:
+                                              
+                        if self.fem_3d.get_org_node_num_if_duplicate(solid_nodes[node])<0:
+                            self.fem_3d.gcoord[node_num]=solid_nodes[node]
+                            nodin.append(node_num)
+                            node_num+=1
+                        else:
+                            print(self.fem_3d.get_org_node_num_if_duplicate(solid_nodes[node]))
+                            nodin.append(self.fem_3d.get_org_node_num_if_duplicate(solid_nodes[node]))
+                           
+                    self.fem_3d.gelmnt1[element_num]=GELMNT1(element_num,SOLID_20,0,nodin)
+                    element_num+=1
+        
+        pass
+    def _create_set(self,alfas:list[Alfa],base_elements:list[int],num:int,description="")->None:
+        nodes=self._find_sets_nodes(alfas=alfas,base_elements=base_elements)
+        self.fem_3d.create_set(num,fem_List=nodes,type=1,tx1=description,tx2=None)
+
+    
+    def _find_sets_nodes(self,alfas:list[Alfa],base_elements:list[int])->list[int]:
+        set_nodes:list[int]=[]
+        for alfa in alfas:
+            for element in base_elements:
+                typ=self.base_fem_2d.gelmnt1[element].eltype
+                if typ==BEAM_3:
+
+                    gcoords_base=self.base_fem_2d.get_elment_gcoord(element)
+                    nodes=self._create_solid_nodes(gcoords_base,alfa,mapping_dict=beam_shell_map_3_8)
+                    for s,v in nodes.items():
+                        node=self.fem_3d.get_node_given_coordinates(Point(v.xcoord,v.ycoord,v.zcoord))
+                        if node>0:
+                            set_nodes.append(node)
+                        else:
+                            raise ValueError(f"Node not found node for coordinates: {v.xcoord}, {v.ycoord}, {v.zcoord}")
+        return sorted(set_nodes)
+      
+                        
+
+                
+        
+        
                    
                 
 
-    def _create_solid_nodes(self,nodes:list[GCOORD],start_alfa:float,stopp_alfa:float)->dict[int,GCOORD]:
-        return_nodes:dict[int,GCOORD]={}
-        half_alfa=start_alfa+(stopp_alfa-start_alfa)/2
 
-      
 
-        if len(nodes)==8:
-            for n,node in enumerate(nodes):
-                en=shell_solid_mpap_8_20[n+1]
 
-                p0=calc_new_point(self.revolve_point,Point(node.xcoord,node.ycoord,node.zcoord),start_alfa)
-                return_nodes[en[0]]=GCOORD(p0.x,p0.y,p0.z)
-                if len(en)==3:       
-                    p1=calc_new_point(self.revolve_point,Point(node.xcoord,node.ycoord,node.zcoord),half_alfa)
-                    return_nodes[en[1]]=GCOORD(p1.x,p1.y,p1.z)
-                    p2=calc_new_point(self.revolve_point,Point(node.xcoord,node.ycoord,node.zcoord),stopp_alfa)
-                    return_nodes[en[2]]=GCOORD(p2.x,p2.y,p2.z)
-                elif len(en)==2:
-                    p1=calc_new_point(self.revolve_point,Point(node.xcoord,node.ycoord,node.zcoord),stopp_alfa)
-                    return_nodes[en[1]]=GCOORD(p1.x,p1.y,p1.z)
+    def _create_solid_nodes(self, nodes: list[GCOORD], alfa:Alfa, 
+                        mapping_dict: dict) -> dict[int, GCOORD]:
+        """
+        Create 3D nodes for a solid by revolving input nodes around a point.
+        
+        Args:
+            nodes: List of input nodes to revolve
+            start_alfa: Starting angle for revolution (in radians)
+            stopp_alfa: Stopping angle for revolution (in radians)
+            mapping_dict: Dictionary mapping source node indices to target node indices
+                        
+        Returns:
+            Dictionary of new nodes indexed by their element node number
+        """
+        return_nodes: dict[int, GCOORD] = {}
+        half_alfa = alfa.start + (alfa.stopp - alfa.start) / 2
+        
+        # Process each node according to mapping
+        for n, node in enumerate(nodes):
+            node_index = n + 1  # 1-based indexing
+            if node_index not in mapping_dict:
+                continue
+                
+            target_indices = mapping_dict[node_index]
+            point = Point(node.xcoord, node.ycoord, node.zcoord)
+            
+            # Create first point at start angle
+            p0 = calc_new_point(self.revolve_point, point, alfa.start)
+            return_nodes[target_indices[0]] = GCOORD(p0.x, p0.y, p0.z)
+            
+            if len(target_indices) == 3:
+                # Create middle point at half angle
+                p1 = calc_new_point(self.revolve_point, point, half_alfa)
+                return_nodes[target_indices[1]] = GCOORD(p1.x, p1.y, p1.z)
+                
+                # Create end point at stop angle
+                p2 = calc_new_point(self.revolve_point, point, alfa.stopp)
+                return_nodes[target_indices[2]] = GCOORD(p2.x, p2.y, p2.z)
+                
+            elif len(target_indices) == 2:
+                # Create end point at stop angle
+                p1 = calc_new_point(self.revolve_point, point, alfa.stopp)
+                return_nodes[target_indices[1]] = GCOORD(p1.x, p1.y, p1.z)
+        
+        # Return sorted by the key from low to high
+        return_nodes = dict(sorted(return_nodes.items(), key=lambda x: x[0]))
+        
+        return return_nodes
 
-        #return sorted by the key from low to high
-        return_nodes=dict(sorted(return_nodes.items(),key=lambda x:x[0]))
 
-        return  return_nodes
+
+
+
+    
     
     
     def _create_GNODE(self)->None:

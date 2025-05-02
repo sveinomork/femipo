@@ -7,6 +7,7 @@ SOLID_15=30
 SOLID_31=31
 SHELL_8=28
 SHELL_6=26
+BEAM_3=23
 
 
 side_dic_30:dict[int,list[int]]={1:[14,13,12,11,10,15],

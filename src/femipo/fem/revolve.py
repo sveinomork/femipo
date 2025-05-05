@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from shapely import Point
 
-from femipo import fem
+
 
 from .fem import FEM
 from .element_parameters import BEAM_3, SOLID_20,SHELL_8,shell_solid_mpap_8_20,shell_solid_map_6_15,beam_shell_map_3_8
@@ -17,7 +17,7 @@ from ..func.func_geo import  calc_new_point
 @dataclass
 class Alfa():
     start:float
-    stopp:float
+    stop:float
  
 
 @dataclass
@@ -152,14 +152,14 @@ class Revolve():
         Args:
             nodes: List of input nodes to revolve
             start_alfa: Starting angle for revolution (in radians)
-            stopp_alfa: Stopping angle for revolution (in radians)
+            stop_alfa: Stopping angle for revolution (in radians)
             mapping_dict: Dictionary mapping source node indices to target node indices
                         
         Returns:
             Dictionary of new nodes indexed by their element node number
         """
         return_nodes: dict[int, GCOORD] = {}
-        half_alfa = alfa.start + (alfa.stopp - alfa.start) / 2
+        half_alfa = alfa.start + (alfa.stop - alfa.start) / 2
         
         # Process each node according to mapping
         for n, node in enumerate(nodes):
@@ -180,12 +180,12 @@ class Revolve():
                 return_nodes[target_indices[1]] = GCOORD(p1.x, p1.y, p1.z)
                 
                 # Create end point at stop angle
-                p2 = calc_new_point(self.revolve_point, point, alfa.stopp)
+                p2 = calc_new_point(self.revolve_point, point, alfa.stop)
                 return_nodes[target_indices[2]] = GCOORD(p2.x, p2.y, p2.z)
                 
             elif len(target_indices) == 2:
                 # Create end point at stop angle
-                p1 = calc_new_point(self.revolve_point, point, alfa.stopp)
+                p1 = calc_new_point(self.revolve_point, point, alfa.stop)
                 return_nodes[target_indices[1]] = GCOORD(p1.x, p1.y, p1.z)
         
         # Return sorted by the key from low to high

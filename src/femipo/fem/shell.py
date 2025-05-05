@@ -3,7 +3,7 @@ from operator import le
 from shapely import Point
 from vectormath import Vector3
 from .fem import FEM
-from .element_parameters import side_d,SOLID_20,solid20_shell,SHELL_8,SOLID_15,solid15_shell,SHELL_6,shell_solid_mpap_8_20,sh|
+from .element_parameters import side_d,SOLID_20,solid20_shell,SHELL_8,SOLID_15,solid15_shell,SHELL_6,shell_solid_mpap_8_20
 from .cards.gnode import GNODE
 from .cards.gcoord import GCOORD
 from .cards.gelmnt1 import GELMNT1
@@ -97,7 +97,7 @@ class SHELL():
 
     def _create_nodes(self,element:GELMNT1,vector:Vector3)->None:
         nodes = {}
-        n=1
+   
         if element.eltype==SHELL_8:
             for sh_node,solid_node in shell_solid_mpap_8_20.items():
 
@@ -287,8 +287,10 @@ class SHELL():
         self.fem_2d.date= self.fem_3d.date 
 
 
-    def _creat_IDENT(self,num)->None:
-        if num==None:
+    from typing import Optional
+
+    def _creat_IDENT(self, num: Optional[int] = None) -> None:
+        if num is None:
             self.fem_2d.ident= self.fem_3d.ident   
         else:
             self.fem_2d.ident[1]=IDENT(self.fem_3d.ident[1].slevel,self.fem_3d.ident[1].selmod)

@@ -6,11 +6,12 @@ from .read import READ
 from ..func.element_func import ELEMENT_FUNC
 from ..func.set_func import SET_FUNC
 from ..func.load_func import LOAD_FUNC
+from ..func.boundary_func import BONDARY_FUNC
 import pickle
 from dataclasses import dataclass
 
 @dataclass(frozen=False)
-class FEM(READ,WRITE,NODE_FUNC,ELEMENT_FUNC,UPDATE,SET_FUNC,LOAD_FUNC):
+class FEM(READ,WRITE,NODE_FUNC,ELEMENT_FUNC,UPDATE,SET_FUNC,LOAD_FUNC,BONDARY_FUNC):
 
 
     def save_obj(self,name:str)->None:

@@ -1,3 +1,4 @@
+
 from ..fem.fem_base import FEM_BASE
 from .func_template import FUNC_TEMPLATE
 from ..fem.cards.gcoord import GCOORD
@@ -169,6 +170,8 @@ class NODE_FUNC(FEM_BASE,FUNC_TEMPLATE):
          if (gcoord.xcoord==value.xcoord and gcoord.ycoord==value.ycoord and gcoord.zcoord==value.zcoord):
             return key
       return -1
+   
+  
    
 
 

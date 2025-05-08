@@ -10,7 +10,7 @@ def mock_self():
 
       
     fem_obj_3d=FEM()
-    fem_obj_3d.read_fem(r'C:\Users\nx74\feminterface\feminterface\tests\T11.FEM')
+    fem_obj_3d.read_fem(r'C:\Users\nx74\Work\femipo\tests\T11.FEM')
 
    
     return fem_obj_3d

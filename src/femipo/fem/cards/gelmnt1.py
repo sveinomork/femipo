@@ -1,6 +1,7 @@
 from dataclasses import dataclass,field
-from typing import IO,List
+from typing import IO
 from . import util_func
+from ..element_parameters import SOLID_20, SOLID_15, SHELL_8, SHELL_6, BEAM_3
 
 @dataclass
 class GELMNT1:
@@ -9,7 +10,7 @@ class GELMNT1:
     elnox:int #external element number
     eltype:int #element type number
     eltyad:int #additonal information related to element type
-    nodin:List[int]=field(default=list)
+    nodin:list[int]=field(default_factory=list)
 
     
     
@@ -29,18 +30,30 @@ class GELMNT1:
             TFEMmod.append("\n")
         return TFEMmod
     
+    def print_abaqus(self,elno:int)->list[str]:
+        return_list:list[str]=[]
+        
+        if self.eltype==SOLID_20:
+            # First line with elno and first 15 nodes
+            return_list.append(f"    {elno}, {', '.join(str(self.nodin[i]) for i in range(15))}\n")
+            # Second line with remaining nodes
+            return_list.append(f"    {', '.join(str(self.nodin[i]) for i in range(15, 20))}\n")
+        
+        return return_list
+    
+            
     def print_file(self,elno,file:str):
         TFEMmod=self.print(elno)
         util_func.append_lines_to_file(TFEMmod,file)
     
 
     @staticmethod
-    def create(line:str,fin:IO)->tuple[int,list[float]]:
+    def create(line:str,fin:IO)->tuple[int,list[int|list[int]]]:
         data=util_func.getdata(line,fin,1)
-        elnox=data[0]
+        elnox=int(data[0])
         elno=int(data[1])
         eltype=int(data[2])
-        eltyad=data[3]
+        eltyad=int(data[3])
          # 3-nodes curved beam element
         if eltype==int(23):
             data= util_func.getdata(line,fin,2,data)
@@ -91,7 +104,7 @@ class GELMNT1:
             
         return (elno,[elnox,eltype,eltyad,[int(i) for i in data[4:]]])
 
-                    
-           
+
+
 
 

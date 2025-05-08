@@ -1,9 +1,10 @@
-
 from vectormath import Vector3
 from shapely.geometry import Point
 import numpy as np
+
 from ..fem.cards.beuslo import BEUSLO
 from ..fem.cards.gcoord import GCOORD
+
 from .load_surf import LoadSurf
 from typing import Callable, Tuple, Union
 from typing import Protocol
@@ -33,7 +34,7 @@ class FUNC_TEMPLATE(Protocol):
         ...
     def get_nodes_in_lc(self,lc:int)->list[int]:
         ...
-
+  
     def get_exe_nodes_inBox_vector(self,p1:Point,vec:Vector3)->list[int]:
         ...
     #def add_bnbc(self,nodes:list[int],fix:list[int])->None:
@@ -67,6 +68,8 @@ class FUNC_TEMPLATE(Protocol):
        
     def create_beuslo(self,lc:int,loadtype:int,load_surf:list[LoadSurf],load_func:LoadFuncType,lf:float=1.0,**load_func_args:float)->None:
         ...
+    def create_beuslo_given_nodes(self,lc:int,nodes:list[int],loadtype:int,load_func:LoadFuncType,lf:float=1.0,**load_func_args:float)->None:
+        ...
 
 
    
@@ -78,9 +81,5 @@ class FUNC_TEMPLATE(Protocol):
         ...
     def get_org_node_num_if_duplicate(self,gcoord:GCOORD)->int:
         ...
-
-
-
-
-
-    
+    def add_bnbc(self,nodes:list[int],fix:list[int])->None:
+        ...

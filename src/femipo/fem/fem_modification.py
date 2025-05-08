@@ -5,6 +5,7 @@ from .cards.gelmnt1 import GELMNT1
 from .cards.gsetmemb import GSETMEMB
 from ..func.func_template import FUNC_TEMPLATE
 from shapely.geometry import Point
+from collections import OrderedDict
 
 
 import logging
@@ -18,6 +19,7 @@ class UPDATE(FEM_BASE,FUNC_TEMPLATE):
 
 
     def remove_elements_from_volume_from_fem_modell(self,p1:Point,p2:Point):
+        """Remove elements from the model based on the coordinates of the box defined by p1 and p2."""
         elements_to_be_removed=self.get_elements_inBox(p1,p2)
         logger.info(f'Number of elements to be removed: {len(elements_to_be_removed)}')
         elements_in_model=[el for el in self.gelmnt1]
@@ -57,8 +59,8 @@ class UPDATE(FEM_BASE,FUNC_TEMPLATE):
 
     def _update_gnode(self,nodes_not_to_be_removed:list[int])->dict[int,int]:
         conv_dict={}
-       
-        temp_gnode={}
+        temp_gnode=OrderedDict()
+      
         for n,node in enumerate(nodes_not_to_be_removed):
             temp_gnode[n+1]=self.gnode[node]
             conv_dict[node]=n+1
@@ -66,7 +68,7 @@ class UPDATE(FEM_BASE,FUNC_TEMPLATE):
         return conv_dict
     
     def _update_gcoord(self,node_conv_dict:dict[int,int])->None:
-        temp_coord={}
+        temp_coord=OrderedDict()
         for old_node,new_node in node_conv_dict.items():
             temp_coord[new_node]=self.gcoord[old_node]
         self.gcoord=temp_coord
@@ -74,7 +76,7 @@ class UPDATE(FEM_BASE,FUNC_TEMPLATE):
     def _update_gelment1(self,elements_not_to_be_removed:list[int],node_conv_dict:dict[int,int])->dict[int,int]:
         conv_dict={}
         
-        temp_gelmnt1={}
+        temp_gelmnt1=OrderedDict()
 
         for n,element in enumerate(elements_not_to_be_removed):
             nodes=[]
@@ -90,7 +92,7 @@ class UPDATE(FEM_BASE,FUNC_TEMPLATE):
         return conv_dict 
     
     def _update_gelref1(self,conv_dict:dict[int,int]):
-        temp_gelref={}
+        temp_gelref=OrderedDict()
         for old_element,new_element in conv_dict.items():
             temp_gelref[new_element]=self.gelref1[old_element]
         

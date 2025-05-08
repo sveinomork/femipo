@@ -11,7 +11,7 @@ class GCOORD:
 
     # Optional instance-specific tolerance (different from global default)
     # Using field() with default_factory to avoid mutable default issues
-    tolerance: float = field(default=1e-6)
+    tolerance: float = field(default=1e-3)
     
     def print(self,nodeno):
         TFEMmod=[]
@@ -23,6 +23,9 @@ class GCOORD:
         TFEMmod=self.print(nodeno)
         util_func.append_lines_to_file(TFEMmod,file)
 
+    def print_abaqus(self,nodeno:int)->list[str]:
+       
+        return [f'{nodeno}, {self.xcoord}, {self.ycoord}, {self.zcoord}\n']
     
     @staticmethod
     def create(line:str,fin:IO)->tuple[int,list[float]]:

@@ -1,6 +1,9 @@
+from calendar import c
 from src.femipo.fem.fem import FEM
 from src.femipo.fem.revolve import Revolve,Alfa
-from shapely.geometry import Point
+from src.femipo.fem.asembly import ASSEMBLY
+from shapely import Point
+
 import math
 def main():
     fem_obj=FEM()
@@ -55,26 +58,70 @@ def main2():
 
 def main3():
     fem_obj_2d=FEM()
-    fem_obj_2d.read_fem(r'C:\Users\nx74\Work\femipo\src\T11.FEM')
+    fem_obj_2d.read_fem(r'C:\Users\nx74\Work\femipo\src\T55.FEM')
     fem_obj_3d=FEM()
     _alafas=[0.0,10.0,20.0,30.0,40.0,50.0,60.0,70.0,80.0,90.0,100.0,110.0,120.0,130.0,140.0,150.0,160.0,170.0,180.0,190.0,200.0,210.0,220.0,230.0,240.0,250.0,260.0,270.0,280.0,290.0,300.0,310.0,320.0,330.0,340.0,350.0]
     #_alafas2=[0.0,20.0,40.0,60.0,80.0,100.0,120.0,140.0,160.0,180.0,200.0,220.0,240.0,260.0,280.0,300.0,320.0,340.0]
-    _alafas=[0.0,10.0]
-    alfas=[Alfa(start=alfa,stopp=alfa+10) for alfa in _alafas]
+    _alafas=[0.0,10.0,20,30]
+    alfas=[Alfa(start=alfa,stop=alfa+10) for alfa in _alafas]
     #alfas2=[Alfa(start=alfa,stopp=alfa+10) for alfa in _alafas2]
     rev=Revolve(fem_obj_2d,fem_obj_3d,Point(0,0,0))
     
     base_elements=[5]
-    rev.create_solid_from_shell(base_elements,alfas,1)
-    rev._create_set(alfas,[2],1,"surfaces")
-    #rev.create_solid_from_shell([4],alfas2,1)
-    fem_obj_3d.write(r'C:\Users\nx74\Work\femipo\src\T31.FEM')
+    rev.create_solid_from_shell(base_elements,alfas,1,1)
+    rev._create_node_set(alfas,[2],2,"surfaces")
+    #rev._create_boundary_condition(alfas,[2],[1,1,1])
+    #rev.create_solid_from_shell([4],alfas,1)
+    def const(x,y,z,value:float)->float:
+        return 1.0
+
+    rev._create_loads(alfas,[2],1,const)
+    #rev.(lc=1,loadtype=1,load_surf=at,load_func=const,lf=1,value=1)
+
+
+
+
+
+
+
+
+
+
+    fem_obj_3d.write(r'C:\Users\nx74\Work\femipo\src\T11.FEM')
     print("stopp")
 
+def main4():
+    fem_obj_2d=FEM()
+    fem_obj_2d.read_fem(r'C:\Users\nx74\Work\femipo\src\T1.FEM')
+    fem_obj_3d1=FEM()
+    fem_obj_3d2=FEM()
+   
+    _alafas1=[0.0,10.0]
+    alfas1=[Alfa(start=alfa,stop=alfa+10) for alfa in _alafas1]
+
+    _alafas2=[0.0,-10.0]
+    alfas2=[Alfa(start=alfa,stop=alfa-10) for alfa in _alafas2]
+   
+   
+    #alfas2=[Alfa(start=alfa,stopp=alfa+10) for alfa in _alafas2]
+    rev1=Revolve(fem_obj_2d,fem_obj_3d1,Point(0,0,0))
+    rev2=Revolve(fem_obj_2d,fem_obj_3d2,Point(0,0,0))
+    
+    base_elements=[1]
+    rev1.create_solid_from_shell(base_elements,alfas1,1,create_set=False)
+    rev2.create_solid_from_shell(base_elements,alfas2,1,create_set=False)
+    
+    fem_obj_3d1.write(r'C:\Users\nx74\Work\femipo\src\T5.FEM')
+    fem_obj_3d2.write(r'C:\Users\nx74\Work\femipo\src\T6.FEM')
+
+    assembly=ASSEMBLY(fem_obj_3d1)
+    assembly.add(fem_obj_3d2)
+    fem_obj_3d1.write(r'C:\Users\nx74\Work\femipo\src\T7.FEM')
+    print("stopp")
 
     
      
 
 if __name__ == "__main__":
-    main3()
+    main4()
 

@@ -23,8 +23,21 @@ def rotate_point_origin_euler(point:Point,seq:str, angels:list,degrees:bool=Fals
     degrees: bool, optional
         If True, then the given angles are assumed to be in degrees. Default is False.
 
-Returns:
-    rotated point :Point
+    Returns:
+        rotated point :Point
+    
+    Examples:
+        >>> p = Point(1, 0, 0)
+        >>> rotate_point_origin_euler(p, seq='z', angles=[90], degrees=True)
+        Point(0.000, 1.000, 0.000)
+
+        >>> p = Point(0, 1, 0)
+        >>> rotate_point_origin_euler(p, seq='x', angles=[np.pi / 2])
+        Point(0.000, 1.000, 0.000)  # stays the same because rotation is about x-axis
+
+        >>> p = Point(1, 0, 0)
+        >>> rotate_point_origin_euler(p, seq='zyx', angles=[90, 0, 0], degrees=True)
+        Point(0.000, 1.000, 0.000)
     
     """
     # point converted to  np array like
@@ -94,6 +107,24 @@ def calc_new_point(center: Point, p2: Point, alfa: float) -> Point:
         return Point(x3, y3, p2.z)
 
 
-
+def mirror_point(point:Point,po:Point,vector:Vector3)->Point:
+    """
+    Mirror a point across a plane defined by a point and a vector.
+    Args:
+        point (Point): The point to be mirrored.
+        po (Point): A point on the plane of reflection.
+        vector (Vector3): A vector normal to the plane of reflection.
+    Returns:
+        Point: The mirrored point.
+    """
+    # Calculate the dot product of the vector and the difference between the point and the plane point
+    dot_product = (point.x - po.x) * vector.x + (point.y - po.y) * vector.y + (point.z - po.z) * vector.z
+    
+    # Calculate the mirrored coordinates
+    x_mirror = point.x - 2 * dot_product * vector.x
+    y_mirror = point.y - 2 * dot_product * vector.y
+    z_mirror = point.z - 2 * dot_product * vector.z
+    
+    return Point(x_mirror, y_mirror, z_mirror)  
 
 

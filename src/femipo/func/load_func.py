@@ -1,10 +1,13 @@
 
+
 from ..fem.cards.beuslo import BEUSLO
 from .load_surf import LoadSurf
 from typing import Callable, Dict,Any
 
 from typing import List,Union,Tuple
 from ..fem.fem_base import FEM_BASE
+from ..fem.element_parameters import  side_dic_20
+
 
 
 from .func_template import FUNC_TEMPLATE
@@ -16,7 +19,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-
+LoadFuncType = Callable[..., Union[float, Tuple[float, float, float]]] 
     
 def contains_element(load_surfs: List['LoadSurf'], element: int) -> bool:
     """Check if the element is in any of the LoadSurf objects in the list."""
@@ -32,7 +35,7 @@ def contains_element_and_side(load_surfs: List['LoadSurf'], element: int, side: 
 
 
 
-def extract_func_parameters(func: Callable) -> Dict[str, Any]:
+def extract_func_parameters(func: LoadFuncType) -> Dict[str, Any]:
     """
     Extracts the parameters of a given function, including their default values if present.
     
@@ -46,6 +49,8 @@ def extract_func_parameters(func: Callable) -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: A dictionary mapping parameter names to their default values or `None` if no default exists.
     """
+    if func is None:
+        raise ValueError("The provided function is None.")
     signature = inspect.signature(func)
     params = signature.parameters
     args_dict: Dict[str, Any] = {}
@@ -67,7 +72,7 @@ class LOAD_FUNC(FEM_BASE,FUNC_TEMPLATE):
     Lrt1 = float   #Beusolo return type 1
     Lrt2 = tuple[float, float, float]  #Beusolo return type
 
-    LoadFuncType = Callable[..., Union[float, Tuple[float, float, float]]]  
+   
     #LoadFuncType = Callable[[float, float, float],  Union[Lrt1,Lrt2]], 
 
 
@@ -119,7 +124,24 @@ class LOAD_FUNC(FEM_BASE,FUNC_TEMPLATE):
         return BEUSLO(loadtyp=load_type,complx=0,layer=0,ndof=ndof,intno=0,side=side,rload=rload)       
            
         
-
+    def _create_load_surf_ojbects(self,nodes:list[int])->list[LoadSurf]:
+        """Create LoadSurf objects for the given element and side."""
+        retun_load_surf_objects:list[LoadSurf]=[]
+        for el in self.gelmnt1:
+            nodes_in_element=self.gelmnt1[el].nodin
+            node_idx=[]
+            for idx,node in enumerate(nodes_in_element):
+                if node in nodes:
+                    node_idx.append(node)  # Adjust for 1-based indexing
+                else:
+                    continue
+            node_idx=list(sorted(node_idx))
+            for side,idxs in side_dic_20.items():
+                node_comp=list(sorted([self.gelmnt1[el].nodin[id-1] for id in idxs]))
+                if node_comp == node_idx:
+                    retun_load_surf_objects.append(LoadSurf(element=el, side=side))
+    
+        return retun_load_surf_objects
     
     def create_beuslo(self,lc:int,loadtype:int,                        
                        load_surf:list[LoadSurf],
@@ -142,8 +164,11 @@ class LOAD_FUNC(FEM_BASE,FUNC_TEMPLATE):
             **load_func_args  # Correctly unpack additional arguments
         )
            
+    def create_beuslo_given_nodes(self,lc:int,nodes:list[int],loadtype:int,load_func:LoadFuncType,lf:float=1.0,**load_func_args:float)->None:
     
-
+        load_surf=self._create_load_surf_ojbects(nodes)
+        self.create_beuslo(lc=lc,loadtype=loadtype,load_surf=load_surf,load_func=load_func,lf=lf,**load_func_args)
+       
 
     def delete_beuslo(self,lc:int)->None:
         if lc in self.beuslo.keys():

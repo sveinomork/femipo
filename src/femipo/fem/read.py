@@ -112,8 +112,7 @@ class READ(FEM_BASE):
     def _setup_gen_dict(self,name:str,line:str,fin:IO)->dict[int,object]:
         """get the spesific data data for the FEM card """
         attribute_dict=getattr(self,name.lower())
-        print(globals().keys())
-        print(globals()[name])
+      
         g=globals()[name].create(line,fin)
         attribute_dict[g[0]]=globals()[name](*g[1])
         return attribute_dict

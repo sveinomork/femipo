@@ -44,6 +44,7 @@ from .cards.gchanr import GCHANR
 from .cards.hierarch import HIERARCH
 from .cards.hsupstat import HSUPSTAT
 from .cards.hsuptran import HSUPTRAN
+from .cards.mgmass import MGMASS
 
 
 
@@ -91,6 +92,7 @@ CARDS=["IDENT",
        "SPROSELE",
        "HIERARCH",
        "HSUPSTAT",
-       "HSUPTRAN"
+       "HSUPTRAN",
+       "MGMASS"
        ]
 

@@ -2,6 +2,7 @@ from ..fem.fem_base import FEM_BASE
 from .func_template import FUNC_TEMPLATE
 from ..fem.cards.gsetmemb import GSETMEMB
 from ..fem.cards.tdsetnam import TDSETNAM
+from shapely.geometry import Point
 
 
 
@@ -52,3 +53,10 @@ class SET_FUNC(FEM_BASE,FUNC_TEMPLATE):
             set_nums.append(num)
         
         return max(list(set(set_nums)))+1
+    
+    def create_set_from_volume(self,p1:Point,p2:Point,name:str)->None:
+        elements_to_be_added=self.get_elements_inBox(p1,p2)
+        num=self.find_nex_unused_set_num()
+        self.create_set(num,elements_to_be_added,2,name)
+
+    

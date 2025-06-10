@@ -108,7 +108,7 @@ class ELEMENT_FUNC(FEM_BASE,FUNC_TEMPLATE):
         #raise ValueError(f"No matching side found for element {element} with nodes {nodes}")
          
         
-    def get_surf_element_side(self,pp1:Point,pp2:Point,pp3:Point)->list[LoadSurf]:
+    def get_surf_element_side(self,pp1:Point,pp2:Point,pp3:Point,z_shell:int=0)->list[LoadSurf]:
         return_list=[]
         eq=get_planeq3P(pp1,pp2,pp3)
         nodes=self.get_nodes_in_plane(eq)
@@ -116,13 +116,27 @@ class ELEMENT_FUNC(FEM_BASE,FUNC_TEMPLATE):
         elements=self.get_elements_containg_nodes(nodes)
 
         for element in elements:
+            
+            eltype=self.gelmnt1[element].eltype
+            
+            
             nodes_in_element=list(set(self.gelmnt1[element].nodin).intersection(set(nodes)))
+
+            if eltype==28:
+                z_side={-1:1,0:2,1:3}
+              
+                if len(nodes_in_element)==8:
+                    return_list.append(LoadSurf(element,z_side[z_shell]))
+                else:
+                    continue
            
-            sides=self.get_element_sides(nodes_in_element,element)
-            if len(sides)==0:
-                continue
-            for side in sides:
-                return_list.append(LoadSurf(element,side))
+            if eltype in [20,30,31]:
+                sides=self.get_element_sides(nodes_in_element,element)
+                if len(sides)==0:
+                    continue
+                for side in sides:
+                    return_list.append(LoadSurf(element,side))
+        
         return return_list  
          
 

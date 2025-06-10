@@ -1,4 +1,5 @@
 from calendar import c
+from femipo import fem
 from src.femipo.fem.fem import FEM
 from src.femipo.fem.revolve import Revolve,Alfa
 from src.femipo.fem.asembly import ASSEMBLY
@@ -120,8 +121,78 @@ def main4():
     print("stopp")
 
     
-     
+def main5():
+    shel=f'C:\DNV\Workspaces\GeniE\T1.FEM'
+    fem_obj_2d=FEM()
+    fem_obj_2d.read_fem(shel)
+    p1=Point(0,0,0.0)
+    p2=Point(1.0,0.0,0.0)
+    p3=Point(0.0,0.0,1.0)
+
+    at=fem_obj_2d.get_surf_element_side(p1,p2,p3)
+    
+    def const(x,y,z,value:float)->float:
+        return value
+    fem_obj_2d.create_beuslo(lc=11,loadtype=1,load_surf=at,load_func=const,lf=1,value=1)
+  
+    fem_obj_2d.write(r'C:\Users\nx74\Work\femipo\src\T8.FEM')
+
+    print("finish")
+
+def main6():
+    def outer_pres1(x,y,z,value)->float:
+        if z<=22.567:
+            return (22.567-z)*10.025
+        
+        return 0
+    
+    def outer_pres2(x,y,z)->float:
+        if z<=13.649:
+            return (13.649-z)*10.025
+        
+        return 0.0
+
+    def comp_pres1(x,y,z)->float:
+        if z<=11.0:
+            return (11.0-z)*10.025
+        
+        return 0.0
+    
+    def comp_pres2(x,y,z)->float:
+        if z<=7.3:
+            return (7.3-z)*10.025
+
+        return 0.0
+    
+    def comp_pres3(x,y,z)->float:
+        if z<=3.7:
+            return (3.7-z)*10.025
+
+        return 0
+       
+    shel=r'C:\Users\nx74\Work\femipo\T1.FEM'
+    fem_obj=FEM()
+    fem_obj.read_fem(shel)
+    fem_obj.create_beusol_based_on_lc(lc=17,base_lc=1,load_type=1,load_func=outer_pres1,lf=1.0)
+    fem_obj.create_beusol_based_on_lc(lc=18,base_lc=1,load_type=1,load_func=outer_pres2,lf=1.0)
+    fem_obj.create_beusol_based_on_lc(lc=19,base_lc=2,load_type=1,load_func=comp_pres1,lf=1.0)
+    fem_obj.create_beusol_based_on_lc(lc=20,base_lc=2,load_type=1,load_func=comp_pres2,lf=1.0)
+    fem_obj.create_beusol_based_on_lc(lc=21,base_lc=2,load_type=1,load_func=comp_pres3,lf=1.0)   
+    fem_obj.create_beusol_based_on_lc(lc=22,base_lc=3,load_type=1,load_func=comp_pres1,lf=1.0)
+    fem_obj.create_beusol_based_on_lc(lc=23,base_lc=3,load_type=1,load_func=comp_pres2,lf=1.0)     
+    fem_obj.create_beusol_based_on_lc(lc=24,base_lc=3,load_type=1,load_func=comp_pres3,lf=1.0) 
+    fem_obj.create_beusol_based_on_lc(lc=25,base_lc=4,load_type=1,load_func=comp_pres1,lf=1.0)
+    fem_obj.create_beusol_based_on_lc(lc=26,base_lc=4,load_type=1,load_func=comp_pres2,lf=1.0)     
+    fem_obj.create_beusol_based_on_lc(lc=27,base_lc=4,load_type=1,load_func=comp_pres3,lf=1.0) 
+    fem_obj.create_grav(lc=28)
+    
+    
+    fem_obj.write(r'C:\Users\nx74\Work\femipo\T2.FEM')
+    
+
+    
+    pass
 
 if __name__ == "__main__":
-    main4()
+    main6()
 

@@ -1,5 +1,8 @@
 
 
+import numpy as np
+
+from femipo.fem.cards.bgrav import BGRAV
 from ..fem.cards.beuslo import BEUSLO
 from .load_surf import LoadSurf
 from typing import Callable, Dict,Any
@@ -13,7 +16,7 @@ from ..fem.element_parameters import  side_dic_20
 from .func_template import FUNC_TEMPLATE
 
 
-
+import math
 import inspect
 import logging
 logger = logging.getLogger(__name__)
@@ -75,74 +78,7 @@ class LOAD_FUNC(FEM_BASE,FUNC_TEMPLATE):
    
     #LoadFuncType = Callable[[float, float, float],  Union[Lrt1,Lrt2]], 
 
-
-    def _create_beusol_obj(self,elno:int,side:int,load_type:int,load_func:LoadFuncType,lf:float=1.0,**load_func_args:float)->BEUSLO:
-        #TODO   add implementiation for complex 
-        rload:list[float]=[]
-        # get all the nodes for the given side of the given element
-        nodes=self.get_nodes_in_element_side(elno,side)
-        args=extract_func_parameters(load_func)
-
-        #calculate ndof
-        eltype=self.gelmnt1[elno].eltype
-        if eltype not in [20,31]:
-            raise ValueError("The current feature only works for 20-nodes solid element and 15-nodes solid element")
-        
-        #LOTYP = 1 number of nodes of the specified element side.
-        #LOTYP = 2 number of translational degrees of freedom of the specified element side.
-        loadtype_mult=1 if load_type==1 else 3    
-        
-        if eltype == 20:
-            ndof = 8 * loadtype_mult
-        elif eltype == 31:
-            ndof = 6 * loadtype_mult
-        else:
-            raise ValueError("Unsupported element type")
-       
-
-        for node in nodes:
-            x,y,z=self.get_node_coordinates(node)
-
-            local_arg=locals()
-            for arg in args:
-                if arg in local_arg:
-                    args[arg]=local_arg[arg]
-                if arg in load_func_args:
-                    args[arg]=load_func_args[arg]
-
-            match load_type:
-                case 1:
-                    result=load_func(**args)
-                    if not isinstance(result,float):
-                        raise ValueError(" The return type of the load_func must be a float loadtype 1")
-                    rload.append(result*lf)
-                case 2:
-                    result=load_func(**args)
-                    if not isinstance(result,tuple):
-                        raise ValueError("The retrun type of the load_func must be a tuple (x-dir,y-dir,z-dir) for loadtype 2")
-        
-        return BEUSLO(loadtyp=load_type,complx=0,layer=0,ndof=ndof,intno=0,side=side,rload=rload)       
-           
-        
-    def _create_load_surf_ojbects(self,nodes:list[int])->list[LoadSurf]:
-        """Create LoadSurf objects for the given element and side."""
-        retun_load_surf_objects:list[LoadSurf]=[]
-        for el in self.gelmnt1:
-            nodes_in_element=self.gelmnt1[el].nodin
-            node_idx=[]
-            for idx,node in enumerate(nodes_in_element):
-                if node in nodes:
-                    node_idx.append(node)  # Adjust for 1-based indexing
-                else:
-                    continue
-            node_idx=list(sorted(node_idx))
-            for side,idxs in side_dic_20.items():
-                node_comp=list(sorted([self.gelmnt1[el].nodin[id-1] for id in idxs]))
-                if node_comp == node_idx:
-                    retun_load_surf_objects.append(LoadSurf(element=el, side=side))
-    
-        return retun_load_surf_objects
-    
+ 
     def create_beuslo(self,lc:int,loadtype:int,                        
                        load_surf:list[LoadSurf],
                        load_func:LoadFuncType,
@@ -169,6 +105,16 @@ class LOAD_FUNC(FEM_BASE,FUNC_TEMPLATE):
         load_surf=self._create_load_surf_ojbects(nodes)
         self.create_beuslo(lc=lc,loadtype=loadtype,load_surf=load_surf,load_func=load_func,lf=lf,**load_func_args)
        
+    def create_beuslo_given_elements(self,lc:int,elements:list[int],loadtype:int,load_func:LoadFuncType,lf:float=1.0,shell_z:int=0,**load_func_args:float)->None:
+        load_surf:list[LoadSurf]=[]
+
+        for element in elements:
+            if element not in self.gelmnt1:
+                raise ValueError(f"Element {element} not found in the model.")
+            if self.gelmnt1[element].eltype == 28:
+                load_surf.append(LoadSurf(element=element, side=shell_z))
+        self.create_beuslo(lc=lc,loadtype=loadtype,load_surf=load_surf,load_func=load_func,lf=lf,**load_func_args)
+        
 
     def delete_beuslo(self,lc:int)->None:
         if lc in self.beuslo.keys():
@@ -177,6 +123,7 @@ class LOAD_FUNC(FEM_BASE,FUNC_TEMPLATE):
     def create_beusol_based_on_lc(self,lc:int,base_lc:int,
                                 load_surf_filter:list[LoadSurf]|None=None,                       
                                 load_func:LoadFuncType|None=None,
+                                load_type:int=2,
                                 lf:float=1.0,
                                 **load_func_args:float)->None:
         
@@ -188,6 +135,8 @@ class LOAD_FUNC(FEM_BASE,FUNC_TEMPLATE):
             self.beuslo.setdefault(lc,{})
 
         for element,beusols in self.beuslo[base_lc].items():
+            if self.gelmnt1[element].eltype not in [20,30]:
+                continue
             
             if load_surf_filter  and contains_element(load_surf_filter,element):
                     continue
@@ -199,11 +148,116 @@ class LOAD_FUNC(FEM_BASE,FUNC_TEMPLATE):
                         continue
                 if load_func is None:
                     beusol=self.beuslo[base_lc][element][side]
-                    self.beuslo[lc][element][side]=BEUSLO(beusol.loadtyp,beusol.complx,beusol.layer,beusol.ndof,beusol.intno,side,beusol.rload)
+                    self.beuslo[lc][element][side]=BEUSLO(load_type,beusol.complx,beusol.layer,beusol.ndof,beusol.intno,side,beusol.rload)
                     continue
-                self.beuslo[lc][element][side]=self._create_beusol_obj(elno=element,load_type=beusol.loadtyp,side=side,load_func=load_func,lf=lf,**load_func_args)
+                obj=self._create_beusol_obj(elno=element,load_type=load_type,side=side,load_func=load_func,lf=lf,**load_func_args)
+                if np.abs(sum(obj.rload)) < 1e-6:
+                    
+                    continue
+                self.beuslo[lc][element][side]=obj
+       
+    def merge_beusol_into_lc(self,lc:int,lcs:list[int],                      
+                                load_func:LoadFuncType|None=None,
+                                load_type:int=2,
+                                lf:float=1.0,
+                                **load_func_args:float)->None:
+        # ONGOING
+        for _lc in lcs:
+            for element,beusols in self.beuslo[_lc].items():
+                    for side,beusol in beusols.items():
+                        if (element or side) not in self.beuslo[lc]:
+                            self.beuslo[lc][element][side]=self._create_beusol_obj(elno=element,side=side,load_type=load_type,
+                                                                                   load_func=load_func,lf=lf,load_func_args=load_func_args)
+
+
+
+
+
+    def _create_beusol_obj(self,elno:int,side:int,load_type:int,load_func:LoadFuncType,lf:float=1.0,**load_func_args:float)->BEUSLO:
+        #TODO   add implementiation for complex 
+        rload:list[float]=[]
+        eltype=self.gelmnt1[elno].eltype
+        # get all the nodes for the given side of the given element
+       
+        nodes=self.get_nodes_in_element_side(elno,side)
+        
+      
+        args = extract_func_parameters(load_func)
+
+        #calculate ndof
+       
+        if eltype not in [20,30,28]:
+            raise ValueError("The current feature only works for 20-nodes solid element and 15-nodes solid element")
+        
+        #LOTYP = 1 number of nodes of the specified element side.
+        #LOTYP = 2 number of translational degrees of freedom of the specified element side.
+        loadtype_mult=1 if load_type==1 else 3    
+        
+        if eltype in [20, 28]:
+            ndof = 8 * loadtype_mult
+        elif eltype == 30:
+            if side in [1,10]:
+                ndof = 6 * loadtype_mult
+            else:
+                ndof = 8 * loadtype_mult
+
+        else:
+            raise ValueError("Unsupported element type")
        
 
+        for node in nodes:
+            x,y,z=self.get_node_coordinates(node)
 
+            local_arg=locals()
+            for arg in args:
+                if arg in local_arg:
+                    args[arg]=local_arg[arg]
+                if arg in load_func_args:
+                    args[arg]=load_func_args[arg]
+
+            match load_type:
+                case 1:
+                    result=load_func(**args)
+                    if not isinstance(result,(float,int)):
+                        raise ValueError(" The return type of the load_func must be a float for loadtype 1")
+                    rload.append(result*lf)
+                case 2:
+                    result=load_func(**args)
+                    if not isinstance(result,tuple):
+                        raise ValueError("The retrun type of the load_func must be a tuple (x-dir,y-dir,z-dir) for loadtype 2")
+        
+        return BEUSLO(loadtyp=load_type,complx=0,layer=0,ndof=ndof,intno=0,side=side,rload=rload)       
+           
+        
+    def _create_load_surf_ojbects(self,nodes:list[int],shell_z:int=0)->list[LoadSurf]:
+        """Create LoadSurf objects for the given element and side."""
+        retun_load_surf_objects:list[LoadSurf]=[]
+        for el in self.gelmnt1:
+            nodes_in_element=self.gelmnt1[el].nodin
+            if self.gelmnt1[el].eltype ==28:
+                z_side={-1:1,0:2,1:3}
+                if nodes_in_element in nodes:
+                    retun_load_surf_objects.append(LoadSurf(element=el, side=z_side[shell_z]))
+            elif self.gelmnt1[el].eltype ==20:
+                node_idx:list[int]=[]
+                for idx,node in enumerate(nodes_in_element):
+                    if node in nodes:
+                        node_idx.append(node)  
+                    else:
+                        continue
+                node_idx=list(sorted(node_idx))
+                for side,idxs in side_dic_20.items():
+                    node_comp=list(sorted([self.gelmnt1[el].nodin[id-1] for id in idxs]))
+                    if node_comp == node_idx:
+                        retun_load_surf_objects.append(LoadSurf(element=el, side=side))
     
+        return retun_load_surf_objects
+    
+    
+           
+
+
+   
+    def create_grav(self,lc:int)->None:
+        self.bgrav[lc]=BGRAV(modelnode=0,opt=0,gx=0,gy=0,gz=-9.8066501)
   

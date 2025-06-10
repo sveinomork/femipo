@@ -147,6 +147,8 @@ class NODE_FUNC(FEM_BASE,FUNC_TEMPLATE):
       eltype=self.gelmnt1[int(elnum)].eltype
 
       match eltype:
+         case 28:           
+            return [node for node in self.gelmnt1[int(elnum)].nodin]
          case 20:
             return get_elment_side_nodes(elnum,side,side_dic_20)
          case 30:

@@ -60,18 +60,18 @@ class BEUSLO:
 
 
     @staticmethod
-    def create(line:str,fin:IO)->tuple[int,int,int,list[float]]:
+    def create(line:str,fin:IO)->tuple[int,int,int,list[int|list[float]]]:
         data=util_func.getdata(line,fin,2)
-        llc=data[0]    
-        loadtyp=data[1]
+        llc=int(data[0])    
+        loadtyp=int(data[1])
         ndof=1
         if loadtyp!=3:
-            ndof=data[5]
-        complx=data[2]
-        layer=data[3]
-        elno=data[4]           
-        intno=data[6]
-        side=data[7]
+            ndof=int(data[5])
+        complx=int(data[2])
+        layer=int(data[3])
+        elno=int(data[4])           
+        intno=int(data[6])
+        side=int(data[7])
 
         if int(ndof) not in [1,6,8,18,24]:
             logger.warning('BEUSLO not implemented for this element')

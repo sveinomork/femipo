@@ -5,7 +5,9 @@ from .cards.gelmnt1 import GELMNT1
 from .cards.gsetmemb import GSETMEMB
 from ..func.func_template import FUNC_TEMPLATE
 from shapely.geometry import Point
+from vectormath import Vector3
 from collections import OrderedDict
+from ..func.func_geo import rotate_point_origin_euler
 
 
 import logging
@@ -47,13 +49,37 @@ class UPDATE(FEM_BASE,FUNC_TEMPLATE):
         self._update_bnbc(new_nodes_conv)
        
 
-    def create_set_from_elemenst_in_volume(self,p1:Point,p2:Point,name:str)->None:
-        elements_to_be_added=self.get_elements_inBox(p1,p2)
-        num=self.find_nex_unused_set_num()
-        self.create_set(num,elements_to_be_added,2,name)
+    def translate(self,trans_vector:Vector3)->None:
+        for node in self.gcoord:
+            self.gcoord[node].xcoord+=trans_vector.x
+            self.gcoord[node].ycoord+=trans_vector.y
+            self.gcoord[node].zcoord+=trans_vector.z
+    
+    def rotate(self,seq:str,angles:list[float])->None:
+        """
+        Rotates the base FEM object around the origin (0,0,0) using a sequence of Euler angles.
 
-        
-        
+        Args:
+            seq (str): Sequence of rotations using 'x', 'y', 'z' characters.
+                      The rotations are applied in the order specified.
+                      Examples: 'xyz', 'zyx', 'x', 'zy'
+            angles (list[float]): List of rotation angles in degrees.
+                               Must match the length of seq.
+                               Positive angles follow the right-hand rule.
+            
+        Examples:
+            # Rotate 90 degrees around z-axis
+            >>> fem_obj.rotate('z', [90])
+            
+            # Rotate 45 degrees around x, then 30 around y
+            >>> fem_obj.rotate('xy', [45,30])
+            
+            # Make a rotated copy 180 degrees around z
+            >>> fem_obj.rotate('z', [180])
+        """
+        for node in self.gcoord:
+            p=rotate_point_origin_euler(Point(self.gcoord[node].xcoord, self.gcoord[node].ycoord, self.gcoord[node].zcoord), seq, angles,degrees=True)
+            self.gcoord[node].xcoord, self.gcoord[node].ycoord, self.gcoord[node].zcoord = p.x, p.y, p.z    
 
 
 

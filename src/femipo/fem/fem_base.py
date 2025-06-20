@@ -1,4 +1,4 @@
-from femipo.fem.cards import mgmass
+
 from .cards.ident import IDENT
 from .cards.date import DATE
 from .cards.text import TEXT
@@ -41,6 +41,7 @@ from .cards.hierarch import HIERARCH
 from .cards.hsupstat import HSUPSTAT
 from .cards.hsuptran import HSUPTRAN
 from .cards.mgmass import MGMASS
+from .cards.bnload import BNLOAD
 
 
 from collections import OrderedDict
@@ -94,6 +95,7 @@ class FEM_BASE():
     hsupstat:dict[int,HSUPSTAT]=field(default_factory=dict)
     hsuptran:dict[int,HSUPTRAN]=field(default_factory=dict)
     mgmass:dict[int,MGMASS]=field(default_factory=dict)
+    bnload: dict[int,dict[int,BNLOAD]] = field(default_factory=dict)
     
     
     

@@ -1,0 +1,12 @@
+open fem "C:\Users\nx74\Work\femipo\T1.FEM"
+model select "T1"
+display outline 
+result selectcase "1" "79" "1"
+display pointloads on
+display lineloads on
+display normalpressure on
+display dummyhydropressure on
+display componentsurfaceloads on
+eye setview 165.334 -317.087 87.0238 128.173 -242.302 86.8529 -0.00450313 4.7307e-05 0.99999 34.8958 -9.04655 22.6613 0.980164
+result selectcase "1" "80" "1"
+eye setview 155.244 -316.059 83.747 120.146 -240.287 84.4053 0.00647701 -0.00568756 0.999963 20.8879 -9.50023 8.83375 0.963278

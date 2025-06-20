@@ -30,6 +30,16 @@ class WRITE(FEM_BASE):
                     if v3 is not None:
                         TFEMmod.extend(v3.print(k1,k2,k3))
         return TFEMmod
+    
+    def _write_bnload(self,card:str):
+        TFEMmod=[]
+        attribute=getattr(self,card.lower())
+
+        for k1,v1 in attribute.items():
+            for k2,v2 in v1.items():
+                if v2 is not None:
+                    TFEMmod.extend(v2.print(k1,k2))
+        return TFEMmod
 
     def _write_bello2(self,card:str):
         TFEMmod=[]
@@ -78,8 +88,11 @@ class WRITE(FEM_BASE):
              
             if card=='BELLO2':
                 TFEMmod.extend(self._write_bello2(card))
+            if card=='BNLOAD':
+                TFEMmod.extend(self._write_bnload(card))
 
-            if card  not in ['GSETMEMB','BEUSLO','BELLO2']:    
+            if card  not in ['GSETMEMB','BEUSLO','BELLO2','BNLOAD']:
+                # Check if the attribute exists in the class    
                 try:
                     attribute=getattr(self,card.lower())
 

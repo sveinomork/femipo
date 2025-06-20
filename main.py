@@ -142,49 +142,116 @@ def main5():
 def main6():
     def outer_pres1(x,y,z,value)->float:
         if z<=22.567:
-            return (22.567-z)*10.025
+            return (22.567-z)*10.05
         
         return 0
     
     def outer_pres2(x,y,z)->float:
         if z<=13.649:
-            return (13.649-z)*10.025
+            return (13.649-z)*10.05
+        
+        return 0.0
+    
+  
+    
+    def outer_pres3(x,y,z)->float:
+        if z<=19.08106321:
+            return (19.08106321-z)*10.05
+        
+        return 0.0
+    
+    def outer_pres4(x,y,z)->float:
+        if z<=16.18525254:
+            return (16.18525254-z)*10.05
         
         return 0.0
 
     def comp_pres1(x,y,z)->float:
-        if z<=11.0:
-            return (11.0-z)*10.025
+        if z<=16.18525254:
+            return (16.18525254-z)*10.05
         
         return 0.0
     
     def comp_pres2(x,y,z)->float:
+        if z<=11.5:
+            return (11.5-z)*10.05
+        
+        return 0.0
+    
+    
+    
+    
+    def comp_pres3(x,y,z)->float:
         if z<=7.3:
-            return (7.3-z)*10.025
+            return (7.3-z)*10.05
 
         return 0.0
     
-    def comp_pres3(x,y,z)->float:
+    def comp_pres4(x,y,z)->float:
         if z<=3.7:
-            return (3.7-z)*10.025
+            return (3.7-z)*10.05
 
         return 0
        
     shel=r'C:\Users\nx74\Work\femipo\T1.FEM'
     fem_obj=FEM()
     fem_obj.read_fem(shel)
-    fem_obj.create_beusol_based_on_lc(lc=17,base_lc=1,load_type=1,load_func=outer_pres1,lf=1.0)
-    fem_obj.create_beusol_based_on_lc(lc=18,base_lc=1,load_type=1,load_func=outer_pres2,lf=1.0)
-    fem_obj.create_beusol_based_on_lc(lc=19,base_lc=2,load_type=1,load_func=comp_pres1,lf=1.0)
-    fem_obj.create_beusol_based_on_lc(lc=20,base_lc=2,load_type=1,load_func=comp_pres2,lf=1.0)
-    fem_obj.create_beusol_based_on_lc(lc=21,base_lc=2,load_type=1,load_func=comp_pres3,lf=1.0)   
-    fem_obj.create_beusol_based_on_lc(lc=22,base_lc=3,load_type=1,load_func=comp_pres1,lf=1.0)
-    fem_obj.create_beusol_based_on_lc(lc=23,base_lc=3,load_type=1,load_func=comp_pres2,lf=1.0)     
-    fem_obj.create_beusol_based_on_lc(lc=24,base_lc=3,load_type=1,load_func=comp_pres3,lf=1.0) 
-    fem_obj.create_beusol_based_on_lc(lc=25,base_lc=4,load_type=1,load_func=comp_pres1,lf=1.0)
-    fem_obj.create_beusol_based_on_lc(lc=26,base_lc=4,load_type=1,load_func=comp_pres2,lf=1.0)     
-    fem_obj.create_beusol_based_on_lc(lc=27,base_lc=4,load_type=1,load_func=comp_pres3,lf=1.0) 
-    fem_obj.create_grav(lc=28)
+    fem_obj.create_beusol_based_on_lc(lc=79,base_lc=2,load_type=1,load_func=outer_pres1,lf=1.0)
+    print(f'LOADC RN=1 LC=17,111   % Outer water pressure 22.5m')
+    fem_obj.create_beusol_based_on_lc(lc=80,base_lc=2,load_type=1,load_func=outer_pres2,lf=1.0)
+    print(f'LOADC RN=1 LC=18,112   % Outer water pressure 13.65m')
+    start_lc=81
+    for i in range(9):
+        fem_obj.create_beusol_based_on_lc(lc=start_lc+i,base_lc=54+i,load_type=1,load_func=comp_pres1,lf=1.0)
+        #print(f'create load {start_lc+i} based on {54+i}')
+        print(f'LOADC RN=1 LC={start_lc+i},{110+i}  ')
+      
+    for i in range(3):
+        fem_obj.create_beusol_based_on_lc(lc=start_lc+9+i,base_lc=63+i,load_type=1,load_func=comp_pres1,lf=1.0)
+        #print(f'create load {start_lc+9+i} based on {63+i}')
+        print(f'LOADC RN=1 LC={start_lc+9+i},{120+i}  ')
+    
+    start_lc=start_lc+12
+    for i in range(9):
+        fem_obj.create_beusol_based_on_lc(lc=start_lc+i,base_lc=54+i,load_type=1,load_func=comp_pres2,lf=1.0)
+        #print(f'create load {start_lc+i} based on {2+i}')
+        print(f'LOADC RN=1 LC={start_lc+i},{130+i}  ')
+      
+    for i in range(3):
+        fem_obj.create_beusol_based_on_lc(lc=start_lc+9+i,base_lc=63+i,load_type=1,load_func=comp_pres2,lf=1.0)
+        #print(f'create load {start_lc+9+i} based on {14+i}')
+        print(f'LOADC RN=1 LC={start_lc+9+i},{140+i}  ')
+    
+    start_lc=start_lc+12
+    for i in range(9):
+        fem_obj.create_beusol_based_on_lc(lc=start_lc+i,base_lc=54+i,load_type=1,load_func=comp_pres3,lf=1.0)
+        #print(f'create load {start_lc+9+i} based on {2+i}')
+        print(f'LOADC RN=1 LC={start_lc+i},{150+i}  ')
+      
+    for i in range(3):
+        fem_obj.create_beusol_based_on_lc(lc=start_lc+9+i,base_lc=63+i,load_type=1,load_func=comp_pres3,lf=1.0)
+        #print(f'create load {start_lc+9+i} based on {14+i}')
+        print(f'LOADC RN=1 LC={start_lc+9+i},{160+i}  ')
+    
+    start_lc=start_lc+12
+    for i in range(9):
+        fem_obj.create_beusol_based_on_lc(lc=start_lc+i,base_lc=54+i,load_type=1,load_func=comp_pres4,lf=1.0)
+        #print(f'create load {start_lc+i} based on {2+i}')
+        print(f'LOADC RN=1 LC={start_lc+i},{170+i}  ')
+      
+    for i in range(3):
+        fem_obj.create_beusol_based_on_lc(lc=start_lc+9+i,base_lc=63+i,load_type=1,load_func=comp_pres4,lf=1.0)
+        #print(f'create load {start_lc+9+i} based on {14+i}')
+        print(f'LOADC RN=1 LC={start_lc+9+i},{180+i}  ')
+   
+    fem_obj.create_beusol_based_on_lc(lc=130,base_lc=2,load_type=1,load_func=outer_pres3,lf=1.0)
+    print(f'LOADC RN=1 LC=17,111   % Outer water pressure 22.5m')
+    fem_obj.create_beusol_based_on_lc(lc=131,base_lc=2,load_type=1,load_func=outer_pres4,lf=1.0)
+    print(f'LOADC RN=1 LC=18,112   % Outer water pressure 13.65m')
+
+
+    fem_obj.create_grav(lc=129)
+    print(f'LOADC RN=1 LC=76,101   % Dead weight')
     
     
     fem_obj.write(r'C:\Users\nx74\Work\femipo\T2.FEM')

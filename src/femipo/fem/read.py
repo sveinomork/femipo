@@ -1,4 +1,4 @@
-
+from tkinter import N
 from .cards_import import*
 from .fem_base import FEM_BASE
 from . import cards_import
@@ -12,6 +12,16 @@ from typing import IO
 
 
 import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler()  # Outputs to console
+    ]
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -117,6 +127,18 @@ class READ(FEM_BASE):
         attribute_dict[g[0]]=globals()[name](*g[1])
         return attribute_dict
     
+    def _setup_bnload_dict(self,name:str,line:str,fin:IO)->None:
+        """get the spesific data data for the FEM card """
+        attribute_dict=getattr(self,name.lower())
+        g=globals()[name].create(line,fin)
+        if int(g[0]) not in attribute_dict:
+            attribute_dict[int(g[0])]=dict()
+      
+        attribute_dict[int(g[0])][int(g[1])]= (globals()[name](*g[2]))
+    
+
+
+    
     def _setup_gelref_dict(self,name:str,line:str,fin:IO,gelment1)->dict[int,object]:
         attribute_dict=getattr(self,name.lower())
         g=globals()[name].create(line,fin,gelment1)
@@ -155,10 +177,11 @@ class READ(FEM_BASE):
             
                 self._setup_gelref_dict(name,line,fin,self.gelmnt1)
                
-               
+            if name=="BNLOAD":
+                self._setup_bnload_dict(name,line,fin)   
                
             # general setup     
-            if name not in ['BEUSLO','GSETMEMB','BELLO2','GELREF1']:
+            if name not in ['BEUSLO','GSETMEMB','BELLO2','GELREF1','BNLOAD']:
                 self._setup_gen_dict(name,line,fin)   
                 
 
@@ -196,4 +219,4 @@ class READ(FEM_BASE):
         self.no_cards=not_implemented
         for card in self.cards_in_fem:
             if card not in no_cards:
-                self.cards.append(card) 
+                self.cards.append(card)

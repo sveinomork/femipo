@@ -2,7 +2,7 @@ from vectormath import Vector3
 from shapely.geometry import Point
 import numpy as np
 
-from ..fem.cards.beuslo import BEUSLO
+
 from ..fem.cards.gcoord import GCOORD
 
 from .load_surf import LoadSurf
@@ -70,8 +70,10 @@ class FUNC_TEMPLATE(Protocol):
         ...
     def create_beuslo_given_nodes(self,lc:int,nodes:list[int],loadtype:int,load_func:LoadFuncType,lf:float=1.0,**load_func_args:float)->None:
         ...
-
-
+    def merge_beusol_into_lc(self,lc:int,lcs:list[int])->None:  
+        ...
+    def move_beusol_to_lc(self,lc_old:int,lc_new:int)->None:
+        ...
    
 
     def get_surf_element_side(self,pp1:Point,pp2:Point,pp3:Point)->list[LoadSurf]:

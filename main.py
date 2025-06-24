@@ -1,5 +1,4 @@
-from calendar import c
-from femipo import fem
+
 from src.femipo.fem.fem import FEM
 from src.femipo.fem.revolve import Revolve,Alfa
 from src.femipo.fem.asembly import ASSEMBLY
@@ -9,7 +8,7 @@ import math
 def main():
     fem_obj=FEM()
     fem_obj.read_fem(r'C:\Users\nx74\femip_test\T11.FEM')
-    n=a.get_nodes_in_lc(1)
+    #n=fem_obj.get_nodes_in_lc(1)
     print("stopp")
     
     def linz(z:float,value:float)->tuple[float,float,float]:
@@ -194,8 +193,20 @@ def main6():
         return 0
        
     shel=r'C:\Users\nx74\Work\femipo\T1.FEM'
+    she2=r'C:\Users\nx74\Work\femipo\T2.FEM'
     fem_obj=FEM()
     fem_obj.read_fem(shel)
+
+    other_obj=FEM()
+    other_obj.read_fem(she2)
+    for k,v in fem_obj.gelref1.items():
+       if v.print(k)==other_obj.gelref1[k].print(k):
+           pass
+       else:
+           print(f'GELREF1 {k} not equal')
+      
+       
+    
     fem_obj.create_beusol_based_on_lc(lc=79,base_lc=2,load_type=1,load_func=outer_pres1,lf=1.0)
     print(f'LOADC RN=1 LC=17,111   % Outer water pressure 22.5m')
     fem_obj.create_beusol_based_on_lc(lc=80,base_lc=2,load_type=1,load_func=outer_pres2,lf=1.0)

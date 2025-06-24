@@ -1,7 +1,7 @@
-from tkinter import N
-from .cards_import import*
+
+from .cards_import import *
 from .fem_base import FEM_BASE
-from . import cards_import
+
 
 
 from typing import Self

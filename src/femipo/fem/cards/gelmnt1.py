@@ -54,6 +54,10 @@ class GELMNT1:
         elno=int(data[1])
         eltype=int(data[2])
         eltyad=int(data[3])
+
+        if eltype not in [23, 24, 25, 11, 15, 28, 26, 20, 30, 31]:
+            raise ValueError(f"Unsupported element type: {eltype}")
+
          # 3-nodes curved beam element
         if eltype==int(23):
             data= util_func.getdata(line,fin,2,data)

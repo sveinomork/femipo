@@ -36,18 +36,25 @@ class GELREF1:
         util_func.append_lines_to_file(TFEMmod,file)
 
     @staticmethod
-    def create(line:str,fin:IO,gelmnt1:dict[int,GELMNT1])->tuple[int,list[float]]:
+    def create(line:str,fin:IO,gelmnt1:dict[int,GELMNT1])->tuple[int,list[int|list[float]]]:
         data=util_func.getdata(line,fin,3)
-        data = [int(d) if i < 12 else d for i, d in enumerate(data)] 
+        data= [int(d) if i < 12 else d for i, d in enumerate(data)] 
         
         le=len([var for var in data[8:12] if var < 0])
         if le > 0:
-            ndof=len(gelmnt1[data[0]].nodin)
+            ndof=len(gelmnt1[int(data[0])].nodin)
             n=(le*ndof)//4+1
             data1=util_func.getdata(line,fin,n+1)
-            genos=[data1[i+4] for i in range(ndof*le)]
-            
-            return (data[0],[data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11],genos])
+            genos:list[float]=[data1[i+4] for i in range(ndof*le)]
+
+            return (int(data[0]),[int(data[1]),int(data[2]),int(data[3]),int(data[4]),int(data[5]),int(data[6]),int(data[7]),int(data[8]),int(data[9]),int(data[10]),int(data[11]),genos])
         else:
-        
-         return (data[0],[data[1],data[2],data[3],data[4],data[5],data[6],data[7],data[8],data[9],data[10],data[11]])
+
+         return (int(data[0]),[int(data[1]),int(data[2]),int(data[3]),int(data[4]),int(data[5]),int(data[6]),int(data[7]),int(data[8]),int(data[9]),int(data[10]),int(data[11])])
+
+    def __eq__(self, other):
+        if not isinstance(other, GELREF1):
+            return NotImplemented
+        return (
+            self.__dict__ == other.__dict__
+        )

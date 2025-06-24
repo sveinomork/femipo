@@ -16,7 +16,7 @@ from ..fem.element_parameters import  side_dic_20
 from .func_template import FUNC_TEMPLATE
 
 
-import math
+
 import inspect
 import logging
 logger = logging.getLogger(__name__)
@@ -156,22 +156,26 @@ class LOAD_FUNC(FEM_BASE,FUNC_TEMPLATE):
                     continue
                 self.beuslo[lc][element][side]=obj
        
-    def merge_beusol_into_lc(self,lc:int,lcs:list[int],                      
-                                load_func:LoadFuncType|None=None,
-                                load_type:int=2,
-                                lf:float=1.0,
-                                **load_func_args:float)->None:
-        # ONGOING
+    def merge_beusol_into_lc(self,lc:int,lcs:list[int])->None:                      
+                             
         for _lc in lcs:
+            if _lc not in self.beuslo:
+                raise ValueError(f"The load case {_lc} does not exist") 
             for element,beusols in self.beuslo[_lc].items():
                     for side,beusol in beusols.items():
                         if (element or side) not in self.beuslo[lc]:
-                            self.beuslo[lc][element][side]=self._create_beusol_obj(elno=element,side=side,load_type=load_type,
-                                                                                   load_func=load_func,lf=lf,load_func_args=load_func_args)
+                            self.beuslo[lc][element][side]=beusol
 
-
-
-
+    def move_beusol_to_lc(self,lc_old:int,lc_new:int)->None:
+        """Move a specific BEUSLO object to a different load case."""
+        if lc_old not in self.beuslo:
+            raise ValueError(f"The load case {lc_old} does not exist")
+        if lc_new  in self.beuslo  in self.beuslo:
+            raise ValueError(f"The load case {lc_new} already exists")
+        
+        for element, beusols in self.beuslo[lc_old].items():
+           for side, beusol in beusols.items():
+               self.beuslo[lc_new].setdefault(element, {})[side] = beusol
 
     def _create_beusol_obj(self,elno:int,side:int,load_type:int,load_func:LoadFuncType,lf:float=1.0,**load_func_args:float)->BEUSLO:
         #TODO   add implementiation for complex 

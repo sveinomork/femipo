@@ -15,8 +15,8 @@ class BGRAV:
         TFEMmod=[]
         TFEMmod.append("BGRAV     ")
         TFEMmod.append(f'{llc:1.8E} {self.modelnode: 1.8E} {0: 1.8E} {self.opt: 1.8E}\n')   
-        TFEMmod.append("          ") 
-        TFEMmod.append(f'{self.gx:1.8E} {self.gy: 1.8E} {self.gz: 1.8E} {0: 1.8E}\n')              
+        TFEMmod.append("         ") 
+        TFEMmod.append(f'{self.gx: 1.8E} {self.gy: 1.8E} {self.gz: 1.8E} {0: 1.8E}\n')              
         return TFEMmod
     
     def print_file(self,nodeno,file:str):

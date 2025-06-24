@@ -7,10 +7,10 @@
      MD-FILE    2 RESERVED IO PACKET WITH INDEX  20
      MD-FILE    3 RESERVED IO PACKET WITH INDEX  39
      
- Direct file opened: nx742388SCR0010
+ Direct file opened: nx745428SCR0010
  (IUINP,NWS,IUIDNT,MXPHYS,STATUS) :          10      1024     3                   0   SCRATCH 
  File is native
- Direct file opened: nx742388SCR0011
+ Direct file opened: nx745428SCR0011
  (IUINP,NWS,IUIDNT,MXPHYS,STATUS) :          11      1024     4                   0   SCRATCH 
  File is native
      MASTER-FILE AND CD-FILE OPENED ON UNITS  58 AND  77 FOR   30 CD-ARRAYS WITH BLOCKSIZE   1024
@@ -21,7 +21,7 @@
      
      
  *** MD-FILE    1 IS NOT OPEN.     NIPREA   1 MRC           0 KMAX           0
- Direct file opened: nx742388SCR0012
+ Direct file opened: nx745428SCR0012
  (IUINP,NWS,IUIDNT,MXPHYS,STATUS) :          12      1024     5                   0   SCRATCH 
  File is native
      MD-FILE    1 OPENED ON UNIT  12 WITH INDEX   1 MAX LENGTH=   137438952960 WORDS AND BLOCKSIZE=  1024

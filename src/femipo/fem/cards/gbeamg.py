@@ -44,7 +44,7 @@ class GBEAMG:
 
     @staticmethod
     def create(line:str,fin:IO)->tuple[int,list[float]]:
-        data=util_func.getdata(line,fin,5)
+        data=util_func.getdata(line,fin,4)
        
 
      

@@ -29,9 +29,7 @@ class Revolve():
     fem_3d:FEM
     revolve_point:Point
 
-    def extrude(self,base_elements:list[int],vector:Vector3,nof:int,selnum:int,set_num:int=1,set_name="default_set",create_set:bool=True)->None:
-        
-        pass
+   
 
     def create_solid_from_shell(self,base_elements:list[int],alfas:list[Alfa],selnum:int,set_num:int=1,set_name="default_set",create_set:bool=True)->None:
         
@@ -124,10 +122,7 @@ class Revolve():
         nodes=self._find_sets_nodes(alfas=alfas,base_elements=base_elements) 
         self.fem_3d.create_beuslo_given_nodes(lc=lc,nodes=nodes,loadtype=1,load_func=load_func,lf=lf)
         
-    def _extrude_to_solid_nodes(self,nodes:list[GCOORD],vector:Vector3,elength:list[float],
-                            mapping_dict:dict[int, list[int]])->dict[int, GCOORD]:
-        
-        pass
+  
 
     def _create_solid_nodes(self, base_nodes: list[GCOORD], alfa:Alfa, 
                         mapping_dict: dict) -> dict[int, GCOORD]:
